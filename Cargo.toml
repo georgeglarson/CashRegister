@@ -1,0 +1,15 @@
+[package]
+name = "cash-register"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "cash-register"
+path = "src/main.rs"
+
+[dependencies]
+thiserror = "2"
+rand = "0.8"
+
+[dev-dependencies]
+proptest = "1"
