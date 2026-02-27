@@ -56,7 +56,7 @@ impl<R: Rng> ChangeStrategy for RandomStrategy<R> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::currency::USD;
+    use crate::currency::{USD, EUR};
     use rand::SeedableRng;
     use rand::rngs::StdRng;
 
@@ -126,5 +126,19 @@ mod tests {
         });
 
         assert!(any_different, "random strategy should produce varied results across seeds");
+    }
+
+    #[test]
+    fn eur_random_sums_correctly() {
+        for seed in 0..100 {
+            let mut strategy = seeded_strategy(seed);
+            let target = 263u32; // EUR has 2-cent coins and 20-cent coins — different structure
+            let breakdown = strategy.make_change(target, &EUR);
+            let total: u32 = breakdown.iter().map(|(d, c)| d.cents * c).sum();
+            assert_eq!(
+                total, target,
+                "seed {seed}: EUR breakdown sums to {total}, expected {target}"
+            );
+        }
     }
 }
