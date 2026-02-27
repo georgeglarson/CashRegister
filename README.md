@@ -13,7 +13,7 @@ cargo test
 ## Usage
 
 ```
-cash-register <input-file> [--divisor N] [--seed N] [--currency USD|EUR]
+cash-register <input-file> [--divisor N] [--seed N] [--currency USD|EUR] [--verbose]
 ```
 
 **Input file**: Each line contains `owed,paid` as dollar amounts (e.g., `2.13,3.00`). Blank lines are skipped.
@@ -21,31 +21,34 @@ cash-register <input-file> [--divisor N] [--seed N] [--currency USD|EUR]
 **Output**: One line per transaction showing the change denominations.
 
 ```bash
-$ cargo run -- sample_input.txt
-3 quarters,1 dime,3 pennies
-3 pennies
-1 dollar,2 quarters,1 dime,1 nickel,2 pennies   # random — your output will vary
+$ cargo run -- sample_input.txt --verbose
+Owed $2.12, Paid $3.00 -> 3 quarters,1 dime,3 pennies
+Owed $1.97, Paid $2.00 -> 3 pennies
+Owed $3.33, Paid $5.00 -> 5 quarters,5 nickels,17 pennies (random)
 
-$ cargo run -- sample_edge_cases.txt --divisor 0
-no change
-3 quarters,2 dimes,4 pennies
-1 dollar
-3 pennies
-2 dollars
-1 quarter
+$ cargo run -- sample_edge_cases.txt --divisor 0 --verbose
+Owed $5.00, Paid $5.00 -> no change
+Owed $0.01, Paid $1.00 -> 3 quarters,2 dimes,4 pennies
+Owed $100.00, Paid $200.00 -> 100 dollars
+Owed $1.97, Paid $2.00 -> 3 pennies
+Owed $3.00, Paid $5.00 -> 2 dollars
+Owed $0.75, Paid $1.00 -> 1 quarter
 
-$ cargo run -- sample_eur.txt --currency EUR --divisor 0
-1 50 cent coin
-1 1 euro coin,1 50 cent coin,1 10 cent coin,1 5 cent coin,1 2 cent coin
-1 50 cent coin,1 10 cent coin,1 2 cent coin,1 1 cent coin
-1 2 euro coin,1 20 cent coin,1 2 cent coin,1 1 cent coin
+$ cargo run -- sample_eur.txt --currency EUR --verbose
+Owed $1.50, Paid $2.00 -> 1 20 cent coin,2 10 cent coins,2 5 cent coins (random)
+Owed $3.33, Paid $5.00 -> 1 50 cent coin,1 10 cent coin,7 5 cent coins (random)
+Owed $0.37, Paid $1.00 -> 1 50 cent coin,1 10 cent coin,1 2 cent coin,1 1 cent coin
+Owed $7.77, Paid $10.00 -> 1 2 euro coin,1 20 cent coin,1 2 cent coin,1 1 cent coin (random)
 ```
+
+Without `--verbose`, output matches the spec format exactly (`3 quarters,1 dime,3 pennies`).
 
 ### Flags
 
 - `--divisor N` — Change which transactions get randomized denominations (default: 3). If `owed` in cents is divisible by N, the change is randomized. Use `--divisor 0` to disable randomization entirely.
 - `--seed N` — Seed the random number generator for reproducible output. Useful for testing.
 - `--currency USD|EUR` — Select the currency denomination set (default: USD).
+- `--verbose` — Show transaction context alongside the change output. Labels random lines.
 
 ## The Problem
 
@@ -114,8 +117,8 @@ Pass `--currency EUR`. The EUR denomination table is already defined and wired i
 ## Testing
 
 ```bash
-cargo test                    # All 48 tests: unit + integration + property-based
-cargo test --lib              # Unit tests only (37 tests)
-cargo test --test integration # Integration tests only (6 tests)
-cargo test --test proptest    # Property-based tests only (5 tests)
+cargo test                    # All 72 tests: unit + integration + property-based
+cargo test --lib              # Unit tests only (46 tests)
+cargo test --test integration # Integration tests only (18 tests)
+cargo test --test proptest    # Property-based tests only (8 tests)
 ```
