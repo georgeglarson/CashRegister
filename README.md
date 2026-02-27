@@ -13,7 +13,7 @@ cargo test
 ## Usage
 
 ```
-cash-register <input-file> [--divisor N] [--seed N]
+cash-register <input-file> [--divisor N] [--seed N] [--currency USD|EUR]
 ```
 
 **Input file**: Each line contains `owed,paid` as dollar amounts (e.g., `2.13,3.00`). Blank lines are skipped.
@@ -25,12 +25,27 @@ $ cargo run -- sample_input.txt
 3 quarters,1 dime,3 pennies
 3 pennies
 1 dollar,2 quarters,1 dime,1 nickel,2 pennies   # random — your output will vary
+
+$ cargo run -- sample_edge_cases.txt --divisor 0
+no change
+3 quarters,2 dimes,4 pennies
+1 dollar
+3 pennies
+2 dollars
+1 quarter
+
+$ cargo run -- sample_eur.txt --currency EUR --divisor 0
+1 50 cent coin
+1 1 euro coin,1 50 cent coin,1 10 cent coin,1 5 cent coin,1 2 cent coin
+1 50 cent coin,1 10 cent coin,1 2 cent coin,1 1 cent coin
+1 2 euro coin,1 20 cent coin,1 2 cent coin,1 1 cent coin
 ```
 
 ### Flags
 
 - `--divisor N` — Change which transactions get randomized denominations (default: 3). If `owed` in cents is divisible by N, the change is randomized. Use `--divisor 0` to disable randomization entirely.
 - `--seed N` — Seed the random number generator for reproducible output. Useful for testing.
+- `--currency USD|EUR` — Select the currency denomination set (default: USD).
 
 ## The Problem
 
@@ -94,7 +109,7 @@ Add a new strategy struct implementing `ChangeStrategy` (one file), then add a b
 
 > What might happen if sales closes a new client in France?
 
-Add a `EUR` constant in `currency.rs` (already included as an example) and pass it instead of `USD`. The denomination table drives all formatting — singular/plural names, values, everything. One caveat: France uses commas as decimal separators (`2,13` not `2.13`), which conflicts with the comma-delimited input format. A real deployment would need a configurable delimiter or a different input format (e.g., TSV, JSON).
+Pass `--currency EUR`. The EUR denomination table is already defined and wired into the CLI. Try it: `cargo run -- sample_eur.txt --currency EUR`. The denomination table drives all formatting — singular/plural names, values, everything. One caveat: France uses commas as decimal separators (`2,13` not `2.13`), which conflicts with the comma-delimited input format. A real deployment would need a configurable delimiter or a different input format (e.g., TSV, JSON).
 
 ## Testing
 
