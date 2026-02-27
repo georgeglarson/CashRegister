@@ -5,7 +5,7 @@ use std::process;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 
-use cash_register::currency::{USD, EUR};
+use cash_register::currency::{EUR, USD};
 use cash_register::format::{format_breakdown, format_verbose};
 use cash_register::parse::parse_input;
 use cash_register::rules::make_change_for;
@@ -21,7 +21,7 @@ fn main() {
     let file_path = &args[1];
     let divisor: u32 = parse_flag(&args, "--divisor").unwrap_or(3);
     let seed: Option<u64> = parse_flag(&args, "--seed");
-    let currency_name = parse_string_flag(&args, "--currency").unwrap_or("USD".to_string());
+    let currency_name: String = parse_flag(&args, "--currency").unwrap_or("USD".to_string());
     let verbose = args.iter().any(|a| a == "--verbose");
 
     let currency = match currency_name.to_uppercase().as_str() {
@@ -55,8 +55,11 @@ fn main() {
             Ok(transaction) => {
                 let breakdown = make_change_for(&transaction, currency, divisor, &mut rng);
                 if verbose {
-                    let is_random = divisor > 0 && transaction.owed_cents % divisor == 0;
-                    println!("{}", format_verbose(&transaction, &breakdown, is_random));
+                    let is_random = divisor > 0 && transaction.owed_cents.is_multiple_of(divisor);
+                    println!(
+                        "{}",
+                        format_verbose(&transaction, &breakdown, currency, is_random)
+                    );
                 } else {
                     println!("{}", format_breakdown(&breakdown));
                 }
@@ -79,12 +82,4 @@ fn parse_flag<T: std::str::FromStr>(args: &[String], flag: &str) -> Option<T> {
         .position(|a| a == flag)
         .and_then(|i| args.get(i + 1))
         .and_then(|v| v.parse().ok())
-}
-
-/// Parse a `--flag value` pair as a string.
-fn parse_string_flag(args: &[String], flag: &str) -> Option<String> {
-    args.iter()
-        .position(|a| a == flag)
-        .and_then(|i| args.get(i + 1))
-        .map(|v| v.clone())
 }
