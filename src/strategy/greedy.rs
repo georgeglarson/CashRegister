@@ -1,5 +1,5 @@
-use crate::currency::Currency;
 use super::{Breakdown, ChangeStrategy};
+use crate::currency::Currency;
 
 /// Greedy algorithm: use the fewest coins/bills possible.
 ///
@@ -30,7 +30,7 @@ impl ChangeStrategy for GreedyStrategy {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::currency::{USD, EUR};
+    use crate::currency::{EUR, USD};
 
     #[test]
     fn sample_output_88_cents() {
@@ -39,10 +39,7 @@ mod tests {
         let breakdown = strategy.make_change(88, &USD);
 
         let named: Vec<(&str, u32)> = breakdown.iter().map(|(d, c)| (d.singular, *c)).collect();
-        assert_eq!(
-            named,
-            vec![("quarter", 3), ("dime", 1), ("penny", 3)],
-        );
+        assert_eq!(named, vec![("quarter", 3), ("dime", 1), ("penny", 3)],);
     }
 
     #[test]
@@ -107,7 +104,10 @@ mod tests {
         assert_eq!(total, 9999);
         // Should be 99 dollars, 3 quarters, 2 dimes, 4 pennies
         let named: Vec<(&str, u32)> = breakdown.iter().map(|(d, c)| (d.singular, *c)).collect();
-        assert_eq!(named, vec![("dollar", 99), ("quarter", 3), ("dime", 2), ("penny", 4)]);
+        assert_eq!(
+            named,
+            vec![("dollar", 99), ("quarter", 3), ("dime", 2), ("penny", 4)]
+        );
     }
 
     #[test]

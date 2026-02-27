@@ -2,9 +2,9 @@ use proptest::prelude::*;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 
-use cash_register::currency::{USD, EUR};
-use cash_register::strategy::random::RandomStrategy;
+use cash_register::currency::{EUR, USD};
 use cash_register::strategy::greedy::GreedyStrategy;
+use cash_register::strategy::random::RandomStrategy;
 use cash_register::strategy::ChangeStrategy;
 
 proptest! {

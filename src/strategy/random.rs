@@ -1,7 +1,7 @@
 use rand::Rng;
 
-use crate::currency::Currency;
 use super::{Breakdown, ChangeStrategy};
+use crate::currency::Currency;
 
 /// Randomized change algorithm: pick random counts for each denomination.
 ///
@@ -56,9 +56,9 @@ impl<R: Rng> ChangeStrategy for RandomStrategy<R> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::currency::{USD, EUR};
-    use rand::SeedableRng;
+    use crate::currency::{EUR, USD};
     use rand::rngs::StdRng;
+    use rand::SeedableRng;
 
     fn seeded_strategy(seed: u64) -> RandomStrategy<StdRng> {
         RandomStrategy::new(StdRng::seed_from_u64(seed))
@@ -125,7 +125,10 @@ mod tests {
             counts != baseline_counts
         });
 
-        assert!(any_different, "random strategy should produce varied results across seeds");
+        assert!(
+            any_different,
+            "random strategy should produce varied results across seeds"
+        );
     }
 
     #[test]

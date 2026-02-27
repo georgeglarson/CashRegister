@@ -77,7 +77,10 @@ fn random_line_sums_correctly() {
     let random_line = stdout.lines().nth(2).expect("expected 3 lines");
 
     let total = parse_output_cents(random_line);
-    assert_eq!(total, 167, "random change should sum to 167 cents (got {total})");
+    assert_eq!(
+        total, 167,
+        "random change should sum to 167 cents (got {total})"
+    );
 }
 
 // ─── Edge case tests ────────────────────────────────────────────────
@@ -108,12 +111,12 @@ fn edge_cases_greedy_output() {
     let lines: Vec<&str> = stdout.lines().collect();
 
     assert_eq!(lines.len(), 6);
-    assert_eq!(lines[0], "no change");                                       // 5.00,5.00
-    assert_eq!(lines[1], "3 quarters,2 dimes,4 pennies");                    // 0.01,1.00 = 99c
-    assert_eq!(lines[2], "100 dollars");                                     // 100.00,200.00 = $100
-    assert_eq!(lines[3], "3 pennies");                                       // 1.97,2.00
-    assert_eq!(lines[4], "2 dollars");                                       // 3.00,5.00
-    assert_eq!(lines[5], "1 quarter");                                       // 0.75,1.00
+    assert_eq!(lines[0], "no change"); // 5.00,5.00
+    assert_eq!(lines[1], "3 quarters,2 dimes,4 pennies"); // 0.01,1.00 = 99c
+    assert_eq!(lines[2], "100 dollars"); // 100.00,200.00 = $100
+    assert_eq!(lines[3], "3 pennies"); // 1.97,2.00
+    assert_eq!(lines[4], "2 dollars"); // 3.00,5.00
+    assert_eq!(lines[5], "1 quarter"); // 0.75,1.00
 }
 
 // ─── EUR end-to-end tests ───────────────────────────────────────────
@@ -125,15 +128,28 @@ fn eur_greedy_output() {
         .output()
         .expect("failed to run binary");
 
-    assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
     let stdout = String::from_utf8_lossy(&output.stdout);
     let lines: Vec<&str> = stdout.lines().collect();
 
     assert_eq!(lines.len(), 4);
-    assert_eq!(lines[0], "1 50 cent coin");                                  // 1.50,2.00 = 50c
-    assert_eq!(lines[1], "1 1 euro coin,1 50 cent coin,1 10 cent coin,1 5 cent coin,1 2 cent coin"); // 3.33,5.00 = 167c
-    assert_eq!(lines[2], "1 50 cent coin,1 10 cent coin,1 2 cent coin,1 1 cent coin"); // 0.37,1.00 = 63c
-    assert_eq!(lines[3], "1 2 euro coin,1 20 cent coin,1 2 cent coin,1 1 cent coin"); // 7.77,10.00 = 223c
+    assert_eq!(lines[0], "1 50 cent coin"); // 1.50,2.00 = 50c
+    assert_eq!(
+        lines[1],
+        "1 1 euro coin,1 50 cent coin,1 10 cent coin,1 5 cent coin,1 2 cent coin"
+    ); // 3.33,5.00 = 167c
+    assert_eq!(
+        lines[2],
+        "1 50 cent coin,1 10 cent coin,1 2 cent coin,1 1 cent coin"
+    ); // 0.37,1.00 = 63c
+    assert_eq!(
+        lines[3],
+        "1 2 euro coin,1 20 cent coin,1 2 cent coin,1 1 cent coin"
+    ); // 7.77,10.00 = 223c
 }
 
 #[test]
@@ -149,7 +165,10 @@ fn eur_random_sums_correctly() {
     let random_line = stdout.lines().nth(1).expect("expected 4 lines"); // line 2 is 3.33,5.00
 
     let total = parse_eur_output_cents(random_line);
-    assert_eq!(total, 167, "EUR random change should sum to 167 cents (got {total})");
+    assert_eq!(
+        total, 167,
+        "EUR random change should sum to 167 cents (got {total})"
+    );
 }
 
 #[test]
@@ -161,7 +180,10 @@ fn unknown_currency_fails() {
 
     assert!(!output.status.success());
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(stderr.contains("Unknown currency"), "expected currency error, got: {stderr}");
+    assert!(
+        stderr.contains("Unknown currency"),
+        "expected currency error, got: {stderr}"
+    );
 }
 
 // ─── Error handling tests ───────────────────────────────────────────
@@ -175,7 +197,10 @@ fn missing_file_returns_nonzero_exit() {
 
     assert!(!output.status.success());
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(stderr.contains("Error reading"), "expected file error message, got: {stderr}");
+    assert!(
+        stderr.contains("Error reading"),
+        "expected file error message, got: {stderr}"
+    );
 }
 
 #[test]
@@ -207,8 +232,14 @@ fn underpayment_reports_error_to_stderr() {
 
     assert!(!output.status.success());
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(stderr.contains("paid"), "expected underpayment error, got: {stderr}");
-    assert!(stderr.contains("less than"), "expected underpayment message, got: {stderr}");
+    assert!(
+        stderr.contains("paid"),
+        "expected underpayment error, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("less than"),
+        "expected underpayment message, got: {stderr}"
+    );
 }
 
 #[test]
@@ -230,7 +261,10 @@ fn malformed_line_reports_error_with_line_number() {
 
     // Should report error for line 2
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(stderr.contains("line 2"), "expected line number in error, got: {stderr}");
+    assert!(
+        stderr.contains("line 2"),
+        "expected line number in error, got: {stderr}"
+    );
 
     // Should exit with error code
     assert!(!output.status.success());
@@ -277,9 +311,15 @@ fn verbose_shows_transaction_context() {
     let lines: Vec<&str> = stdout.lines().collect();
 
     assert_eq!(lines.len(), 3);
-    assert_eq!(lines[0], "Owed $2.12, Paid $3.00 -> 3 quarters,1 dime,3 pennies");
+    assert_eq!(
+        lines[0],
+        "Owed $2.12, Paid $3.00 -> 3 quarters,1 dime,3 pennies"
+    );
     assert_eq!(lines[1], "Owed $1.97, Paid $2.00 -> 3 pennies");
-    assert_eq!(lines[2], "Owed $3.33, Paid $5.00 -> 1 dollar,2 quarters,1 dime,1 nickel,2 pennies");
+    assert_eq!(
+        lines[2],
+        "Owed $3.33, Paid $5.00 -> 1 dollar,2 quarters,1 dime,1 nickel,2 pennies"
+    );
 }
 
 #[test]
@@ -294,10 +334,20 @@ fn verbose_labels_random_lines() {
     let lines: Vec<&str> = stdout.lines().collect();
 
     // Lines 1 and 2 are greedy — no "(random)" label
-    assert!(!lines[0].contains("(random)"), "greedy line should not be labeled random");
-    assert!(!lines[1].contains("(random)"), "greedy line should not be labeled random");
+    assert!(
+        !lines[0].contains("(random)"),
+        "greedy line should not be labeled random"
+    );
+    assert!(
+        !lines[1].contains("(random)"),
+        "greedy line should not be labeled random"
+    );
     // Line 3 (owed $3.33, divisible by 3) should be labeled random
-    assert!(lines[2].contains("(random)"), "random line should be labeled: {}", lines[2]);
+    assert!(
+        lines[2].contains("(random)"),
+        "random line should be labeled: {}",
+        lines[2]
+    );
     assert!(lines[2].starts_with("Owed $3.33, Paid $5.00 -> "));
 }
 
@@ -313,14 +363,24 @@ fn verbose_edge_cases() {
     let lines: Vec<&str> = stdout.lines().collect();
 
     assert_eq!(lines[0], "Owed $5.00, Paid $5.00 -> no change");
-    assert_eq!(lines[1], "Owed $0.01, Paid $1.00 -> 3 quarters,2 dimes,4 pennies");
+    assert_eq!(
+        lines[1],
+        "Owed $0.01, Paid $1.00 -> 3 quarters,2 dimes,4 pennies"
+    );
     assert_eq!(lines[2], "Owed $100.00, Paid $200.00 -> 100 dollars");
 }
 
 #[test]
 fn verbose_eur() {
     let output = cargo_bin()
-        .args(["sample_eur.txt", "--currency", "EUR", "--divisor", "0", "--verbose"])
+        .args([
+            "sample_eur.txt",
+            "--currency",
+            "EUR",
+            "--divisor",
+            "0",
+            "--verbose",
+        ])
         .output()
         .expect("failed to run binary");
 
@@ -328,8 +388,8 @@ fn verbose_eur() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     let lines: Vec<&str> = stdout.lines().collect();
 
-    assert_eq!(lines[0], "Owed $1.50, Paid $2.00 -> 1 50 cent coin");
-    assert!(lines[1].starts_with("Owed $3.33, Paid $5.00 -> "));
+    assert_eq!(lines[0], "Owed €1.50, Paid €2.00 -> 1 50 cent coin");
+    assert!(lines[1].starts_with("Owed €3.33, Paid €5.00 -> "));
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────

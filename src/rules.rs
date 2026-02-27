@@ -20,7 +20,7 @@ pub fn make_change_for<R: Rng>(
         return Vec::new();
     }
 
-    if divisor > 0 && transaction.owed_cents % divisor == 0 {
+    if divisor > 0 && transaction.owed_cents.is_multiple_of(divisor) {
         RandomStrategy::new(rng).make_change(transaction.change_cents, currency)
     } else {
         GreedyStrategy.make_change(transaction.change_cents, currency)
@@ -31,8 +31,8 @@ pub fn make_change_for<R: Rng>(
 mod tests {
     use super::*;
     use crate::currency::USD;
-    use rand::SeedableRng;
     use rand::rngs::StdRng;
+    use rand::SeedableRng;
 
     fn tx(owed: u32, paid: u32) -> Transaction {
         Transaction {

@@ -55,26 +55,24 @@ pub fn parse_dollars_to_cents(s: &str) -> Result<u32, String> {
 pub fn parse_line(line: &str, line_number: usize) -> Result<Transaction, CashRegisterError> {
     let line = line.trim();
 
-    let (owed_str, paid_str) = line.split_once(',').ok_or_else(|| {
-        CashRegisterError::MalformedLine {
-            line: line_number,
-            detail: format!("expected \"owed,paid\" but got \"{line}\""),
-        }
-    })?;
+    let (owed_str, paid_str) =
+        line.split_once(',')
+            .ok_or_else(|| CashRegisterError::MalformedLine {
+                line: line_number,
+                detail: format!("expected \"owed,paid\" but got \"{line}\""),
+            })?;
 
-    let owed_cents = parse_dollars_to_cents(owed_str).map_err(|_| {
-        CashRegisterError::InvalidAmount {
+    let owed_cents =
+        parse_dollars_to_cents(owed_str).map_err(|_| CashRegisterError::InvalidAmount {
             line: line_number,
             input: owed_str.trim().to_string(),
-        }
-    })?;
+        })?;
 
-    let paid_cents = parse_dollars_to_cents(paid_str).map_err(|_| {
-        CashRegisterError::InvalidAmount {
+    let paid_cents =
+        parse_dollars_to_cents(paid_str).map_err(|_| CashRegisterError::InvalidAmount {
             line: line_number,
             input: paid_str.trim().to_string(),
-        }
-    })?;
+        })?;
 
     if paid_cents < owed_cents {
         return Err(CashRegisterError::Underpayment {
@@ -171,13 +169,19 @@ mod tests {
     #[test]
     fn parse_line_underpayment() {
         let result = parse_line("5.00,3.00", 1);
-        assert!(matches!(result, Err(CashRegisterError::Underpayment { .. })));
+        assert!(matches!(
+            result,
+            Err(CashRegisterError::Underpayment { .. })
+        ));
     }
 
     #[test]
     fn parse_line_missing_comma() {
         let result = parse_line("5.00", 1);
-        assert!(matches!(result, Err(CashRegisterError::MalformedLine { .. })));
+        assert!(matches!(
+            result,
+            Err(CashRegisterError::MalformedLine { .. })
+        ));
     }
 
     #[test]
