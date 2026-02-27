@@ -263,6 +263,75 @@ fn mixed_valid_and_invalid_processes_all() {
     assert!(!output.status.success());
 }
 
+// ─── Verbose mode tests ─────────────────────────────────────────────
+
+#[test]
+fn verbose_shows_transaction_context() {
+    let output = cargo_bin()
+        .args(["sample_input.txt", "--divisor", "0", "--verbose"])
+        .output()
+        .expect("failed to run binary");
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let lines: Vec<&str> = stdout.lines().collect();
+
+    assert_eq!(lines.len(), 3);
+    assert_eq!(lines[0], "Owed $2.12, Paid $3.00 -> 3 quarters,1 dime,3 pennies");
+    assert_eq!(lines[1], "Owed $1.97, Paid $2.00 -> 3 pennies");
+    assert_eq!(lines[2], "Owed $3.33, Paid $5.00 -> 1 dollar,2 quarters,1 dime,1 nickel,2 pennies");
+}
+
+#[test]
+fn verbose_labels_random_lines() {
+    let output = cargo_bin()
+        .args(["sample_input.txt", "--seed", "42", "--verbose"])
+        .output()
+        .expect("failed to run binary");
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let lines: Vec<&str> = stdout.lines().collect();
+
+    // Lines 1 and 2 are greedy — no "(random)" label
+    assert!(!lines[0].contains("(random)"), "greedy line should not be labeled random");
+    assert!(!lines[1].contains("(random)"), "greedy line should not be labeled random");
+    // Line 3 (owed $3.33, divisible by 3) should be labeled random
+    assert!(lines[2].contains("(random)"), "random line should be labeled: {}", lines[2]);
+    assert!(lines[2].starts_with("Owed $3.33, Paid $5.00 -> "));
+}
+
+#[test]
+fn verbose_edge_cases() {
+    let output = cargo_bin()
+        .args(["sample_edge_cases.txt", "--divisor", "0", "--verbose"])
+        .output()
+        .expect("failed to run binary");
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let lines: Vec<&str> = stdout.lines().collect();
+
+    assert_eq!(lines[0], "Owed $5.00, Paid $5.00 -> no change");
+    assert_eq!(lines[1], "Owed $0.01, Paid $1.00 -> 3 quarters,2 dimes,4 pennies");
+    assert_eq!(lines[2], "Owed $100.00, Paid $200.00 -> 100 dollars");
+}
+
+#[test]
+fn verbose_eur() {
+    let output = cargo_bin()
+        .args(["sample_eur.txt", "--currency", "EUR", "--divisor", "0", "--verbose"])
+        .output()
+        .expect("failed to run binary");
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let lines: Vec<&str> = stdout.lines().collect();
+
+    assert_eq!(lines[0], "Owed $1.50, Paid $2.00 -> 1 50 cent coin");
+    assert!(lines[1].starts_with("Owed $3.33, Paid $5.00 -> "));
+}
+
 // ─── Helpers ────────────────────────────────────────────────────────
 
 /// Parse a USD output line like "1 dollar,2 quarters,1 nickel,2 pennies" into total cents.
