@@ -35,10 +35,10 @@ Owed $3.00, Paid $5.00 -> 2 dollars
 Owed $0.75, Paid $1.00 -> 1 quarter
 
 $ cargo run -- sample_eur.txt --currency EUR --verbose
-Owed $1.50, Paid $2.00 -> 1 20 cent coin,2 10 cent coins,2 5 cent coins (random)
-Owed $3.33, Paid $5.00 -> 1 50 cent coin,1 10 cent coin,7 5 cent coins (random)
-Owed $0.37, Paid $1.00 -> 1 50 cent coin,1 10 cent coin,1 2 cent coin,1 1 cent coin
-Owed $7.77, Paid $10.00 -> 1 2 euro coin,1 20 cent coin,1 2 cent coin,1 1 cent coin (random)
+Owed €1.50, Paid €2.00 -> 1 20 cent coin,2 10 cent coins,2 5 cent coins (random)
+Owed €3.33, Paid €5.00 -> 1 50 cent coin,1 10 cent coin,7 5 cent coins (random)
+Owed €0.37, Paid €1.00 -> 1 50 cent coin,1 10 cent coin,1 2 cent coin,1 1 cent coin
+Owed €7.77, Paid €10.00 -> 1 2 euro coin,1 20 cent coin,1 2 cent coin,1 1 cent coin (random)
 ```
 
 Without `--verbose`, output matches the spec format exactly (`3 quarters,1 dime,3 pennies`).
@@ -117,8 +117,8 @@ Pass `--currency EUR`. The EUR denomination table is already defined and wired i
 ## Testing
 
 ```bash
-cargo test                    # All 72 tests: unit + integration + property-based
-cargo test --lib              # Unit tests only (46 tests)
+cargo test                    # All 74 tests: unit + integration + property-based
+cargo test --lib              # Unit tests only (48 tests)
 cargo test --test integration # Integration tests only (18 tests)
 cargo test --test proptest    # Property-based tests only (8 tests)
 ```
