@@ -6,7 +6,7 @@ use rand::rngs::StdRng;
 use rand::SeedableRng;
 
 use cash_register::currency::{USD, EUR};
-use cash_register::format::format_breakdown;
+use cash_register::format::{format_breakdown, format_verbose};
 use cash_register::parse::parse_input;
 use cash_register::rules::make_change_for;
 
@@ -14,7 +14,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        eprintln!("Usage: cash-register <input-file> [--divisor N] [--seed N] [--currency USD|EUR]");
+        eprintln!("Usage: cash-register <input-file> [--divisor N] [--seed N] [--currency USD|EUR] [--verbose]");
         process::exit(1);
     }
 
@@ -22,6 +22,7 @@ fn main() {
     let divisor: u32 = parse_flag(&args, "--divisor").unwrap_or(3);
     let seed: Option<u64> = parse_flag(&args, "--seed");
     let currency_name = parse_string_flag(&args, "--currency").unwrap_or("USD".to_string());
+    let verbose = args.iter().any(|a| a == "--verbose");
 
     let currency = match currency_name.to_uppercase().as_str() {
         "USD" => &USD,
@@ -53,7 +54,12 @@ fn main() {
         match result {
             Ok(transaction) => {
                 let breakdown = make_change_for(&transaction, currency, divisor, &mut rng);
-                println!("{}", format_breakdown(&breakdown));
+                if verbose {
+                    let is_random = divisor > 0 && transaction.owed_cents % divisor == 0;
+                    println!("{}", format_verbose(&transaction, &breakdown, is_random));
+                } else {
+                    println!("{}", format_breakdown(&breakdown));
+                }
             }
             Err(e) => {
                 eprintln!("{e}");
